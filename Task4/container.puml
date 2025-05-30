@@ -1,0 +1,30 @@
+@startuml
+' use when editor.plantunl.com
+' !include <C4/C4_Context>
+' !include <C4/C4_Component>
+!include ./C4_Component.puml
+
+Person(customer, "Клиент")
+
+System_Boundary(bank, "Банк") {
+    Person(opCC, "Оператор кол-центра")
+    Container(ccp, "Система кол-центра", "Java Spring boot, React.js", "HTTP/HTTPS") {
+        ContainerDb(ccp_db, "DB", "PostgreSQL", "")
+    }
+    Container(micro_deposit, "Микросервис депозитов", ".NET", "HTTP/HTTPS") {
+        ContainerDb(micro_deposit_db, "DB", "PostgreSQL", "Ставки депозитов и индивидуальные расчеты")
+    }
+}
+
+System_Boundary(part_cc, "Партнерский кол-центр") {
+    System_Ext(extCCP, "Партнерская система кол-центра", "")
+    Person(extOpCC, "Сотрудник партнерского кол-центра")
+}
+Rel(customer, bank, "UC1")
+Rel(customer, part_cc, "UC2")
+Rel(ccp, micro_deposit, "Запрос текущих ставок")
+Rel(opCC, ccp, "")
+Rel(micro_deposit, extCCP, "выгрузка ставок по sftp")
+Rel(extOpCC, extCCP, "")
+
+@enduml

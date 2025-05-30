@@ -1,0 +1,46 @@
+@startuml
+' use when editor.plantunl.com
+' !include <C4/C4_Context>
+!include ./C4_Context.puml
+
+Person(customer, "Клиент")
+
+System_Boundary(bank, "Банк") {
+    System(website, "Сайт", "PHP, React.js")
+    
+    System(ib, "Интернет-банк", "ASP.NET MVC 4.5/MSSQL")
+    System(ccp, "Система кол-центра", "Java Spring boot, React.js/PostgreSQL")
+    System(api, "API-Gateway", "REST/krakenD")
+    System(micro_deposit, "Микросервис депозитов", ".NET")
+
+    Person(opDepositDep, "Сотрудник отдела депозитов")
+    System(abs, "АБС", "Delphi/Oracle")
+    Person(opCC, "Оператор кол-центра")
+}
+
+System_Ext(sms, "СМС-шлюз")
+
+System_Boundary(part_cc, "Партнерский кол-центр") {
+    System_Ext(extCCP, "Партнерская система кол-центра", "")
+    Person(extOpCC, "Сотрудник партнерского кол-центра")
+}
+
+Rel(customer, api, "UC2, UC3, UC4")
+Rel(customer, website, "UC1")
+Rel(website, api, "UC1")
+Rel(api, ib, "UC3, UC4")
+Rel(api, micro_deposit, "UC1,UC2")
+Rel(micro_deposit, ccp, "UC2")
+Rel(micro_deposit, abs, "")
+Rel(ib, micro_deposit, "UC3, UC4")
+Rel(micro_deposit, sms, "")
+Rel(abs, sms, "")
+Rel(ib, sms, "")
+Rel(customer, part_cc, "UC2")
+
+Rel(opCC, ccp, "")
+Rel(opDepositDep, abs, "UC5")
+
+Rel(extOpCC, extCCP, "")
+
+@enduml
