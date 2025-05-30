@@ -1,0 +1,57 @@
+@startuml
+' use when editor.plantunl.com
+' !include <C4/C4_Component>
+!include ./C4_Component.puml
+
+Person(customer, "Клиент")
+
+System_Boundary(bank, "Банк") {
+    Container(website, "Сайт", "PHP, React.js", "HTTP/HTTPS") {
+        ContainerDb(website_db, "DB", "MySQL", "Данные вебсайта")
+    }
+    Container(api, "API-Gateway", "KrakenD", "HTTP/HTTPS")
+    Container(ib, "Интернет-банк", "ASP.NET MVC 4.5", "HTTP/HTTPS") {
+        ContainerDb(ib_db, "DB", "MS SQL", "")
+    }
+    Container(ccp, "Система кол-центра", "Java Spring boot, React.js", "HTTP/HTTPS") {
+        ContainerDb(ccp_db, "DB", "PostgreSQL", "")
+    }
+    Container(micro_deposit, "Микросервис депозитов", ".NET", "HTTP/HTTPS") {
+        ContainerDb(micro_deposit_db, "DB", "PostgreSQL", "Ставки депозитов и индивидуальные расчеты")
+    }
+
+    Person(opDepositDep, "Сотрудник отдела депозитов")
+    Container(abs, "АБС", "Oracle") {
+        ContainerDb(abs_db, "DB", "Oracle", "")
+    }
+    Person(opCC, "Оператор кол-центра")
+    
+    Container(sms_gw, "SMS-адаптер", "HTTP/HTTPS")
+}
+
+System_Ext(sms, "СМС-шлюз")
+
+System_Boundary(part_cc, "Партнерский кол-центр") {
+    System_Ext(extCCP, "Партнерская система кол-центра", "")
+    Person(extOpCC, "Сотрудник партнерского кол-центра")
+}
+
+Rel(customer, api, "UC2, UC3, UC4")
+Rel(customer, website, "UC1")
+Rel(website, api, "UC1")
+Rel(api, ib, "UC3, UC4")
+Rel(api, micro_deposit, "UC1,UC2")
+Rel(micro_deposit, ccp, "UC2")
+Rel(micro_deposit, abs, "")
+Rel(ib, micro_deposit, "UC3, UC4")
+Rel(micro_deposit, sms_gw, "")
+Rel(abs, sms_gw, "")
+Rel(ib, sms_gw, "")
+Rel(extOpCC, extCCP, "")
+Rel(sms_gw, sms, "")
+
+Rel(customer, part_cc, "UC2")
+Rel(opCC, ccp, "")
+Rel(opDepositDep, abs, "UC5", "Delphi thin client")
+
+@enduml
